@@ -63,61 +63,84 @@ object CampusBuildings {
     // bumped to 170 to match the other groups so these rooms actually render.
     private val BSE_BLUE = Color.argb(170, 33, 150, 243)
 
+    // Per the "canteens kakasjay - green" scheme noted at the top of this file.
+    private val CANTEEN_GREEN = Color.argb(170, 76, 175, 80)
+
+    // Per the "library, fishfishes, courts, dean, hostel, student center,
+    // ssc - red" scheme noted at the top of this file. Also covers CR
+    // (comfort room) entries per request - all CRs are red.
+    private val LANDMARK_RED = Color.argb(170, 244, 67, 54)
+
+    // Parking area's own color, matching the pathway's beige tone per
+    // request - no longer using the general "brown" that now applies to
+    // every uncolored building below.
+    private val PARKING_AREA_COLOR = Color.rgb(235, 231, 191)
+
+    // Per request: every building that previously had no fillColor (was
+    // relying on SiteMapView's default purple tint) is now brown, matching
+    // the "parkingan - brown" scheme's color noted at the top of this file
+    // (hex #795C34) - repurposed here as the catch-all default.
+    private val UNCOLORED_BROWN = Color.argb(170, 121, 92, 52)
+
+    // Per the "balay ti uttogs - pink" scheme noted at the top of this file.
+    // Matches hex #FFC0CB.
+    private val GUARD_PINK = Color.argb(170, 255, 192, 203)
+
     //bot right, bot left, top left, top right
     val OTHER_BUILDINGS: List<Building> = listOf(
-        Building("building_1", "CR", pts(247,156, 226,156, 226,132, 247,132)),
-        Building("building_2", "CR", pts(437,99, 463,98, 464,134, 438,135)),
-        Building("building_3a", "Building 3", pts(556,89, 474,88, 473,128, 558,129)),
-        Building("building_3b", "Building 3(2)", pts(594,45, 549,51, 560,108, 564,125, 608,118)),
+        Building("building_1", "CR", pts(247,156, 226,156, 226,132, 247,132), fillColor = LANDMARK_RED),
+        Building("building_2", "CR", pts(437,99, 463,98, 464,134, 438,135), fillColor = LANDMARK_RED),
+        Building("building_3a", "SSC Building", pts(556,89, 474,88, 473,128, 558,129), fillColor = LANDMARK_RED),
+        Building("building_3b", "Chapel", pts(594,45, 549,51, 560,108, 564,125, 608,118), fillColor = UNCOLORED_BROWN),
         // Training Center, split into rooms per the hand-drawn floor plan:
         // a top row of 3 rooms, then a bottom band with a big middle block
         // (split into an upper room + two lower rooms) flanked by two
         // storage/utility rooms (the ones marked "X" - not clickable).
-        Building("building_4a", "Training Center - Room 1", pts(619,74, 618,42, 664,40, 665,72)),
-        Building("building_4b", "Training Center - Room 2", pts(665,72, 664,40, 711,39, 712,70)),
-        Building("building_4c", "Training Center - Room 3", pts(712,70, 711,39, 757,37, 758,68)),
-        Building("building_4d", "Training Center - Storage 1", pts(621,147, 619,74, 659,72, 662,146), clickable = false),
+        Building("building_4a", "Training Center - Room 1", pts(619,74, 618,42, 664,40, 665,72), fillColor = UNCOLORED_BROWN),
+        Building("building_4b", "Training Center - Room 2", pts(665,72, 664,40, 711,39, 712,70), fillColor = UNCOLORED_BROWN),
+        Building("building_4c", "Training Center - Room 3", pts(712,70, 711,39, 757,37, 758,68), fillColor = UNCOLORED_BROWN),
+        Building("building_4d", "Training Center - Storage 1", pts(621,147, 619,74, 659,72, 662,146), fillColor = UNCOLORED_BROWN, clickable = false),
         // Storage 2 shrunk to the top portion only (matching Room 4's height,
         // y~70-113) - it used to run the full column height, but per the
         // hand-drawn plan there's a room below it, next to Room 6, that was
         // missing. See building_4i/4j below for that room.
-        Building("building_4e", "Training Center - Storage 2", pts(760,112, 729,113, 728,70, 758,68), clickable = false),
-        Building("building_4f", "Training Center - Room 4", pts(661,114, 659,72, 728,70, 729,112)),
-        Building("building_4g", "Training Center - Room 5", pts(662,146, 661,114, 695,113, 696,144)),
-        Building("building_4h", "Training Center - Room 6", pts(696,144, 695,113, 729,112, 730,143)),
+        Building("building_4e", "Training Center - Storage 2", pts(760,112, 729,113, 728,70, 758,68), fillColor = UNCOLORED_BROWN, clickable = false),
+        Building("building_4f", "Training Center - BSE", pts(661,114, 659,72, 728,70, 729,112), fillColor = BSE_BLUE),
+        Building("building_4g", "Training Center - Room 5", pts(662,146, 661,114, 695,113, 696,144), fillColor = UNCOLORED_BROWN),
+        Building("building_4h", "Training Center - Room 6", pts(696,144, 695,113, 729,112, 730,143), fillColor = UNCOLORED_BROWN),
         // New room next to Room 6, directly below the (now-shortened) Storage 2
         // X. Kept as a single room (not split) per request.
-        Building("building_4i", "Training Center - Room 7", pts(760,142, 729,143, 729,112, 760,112)),
-        Building("building_5", "Fishery", pts(993,147, 909,147, 909,44, 993,44)),
+        Building("building_4i", "Training Center - Room 7", pts(760,142, 729,143, 729,112, 760,112), fillColor = UNCOLORED_BROWN),
+        Building("building_5", "Fishery", pts(993,147, 909,147, 909,44, 993,44), fillColor = LANDMARK_RED),
         // Registrar's top edge nudged from y139 -> y147 to stop it overlapping Fishery
         // (they shared x909-928, y139-147 before this fix).
-        Building("building_8", "Registrar", pts(928,218, 867,218, 867,147, 928,147)),
-        Building("building_9", "Parking Area", pts(1263,222, 1088,222, 1088,107, 1263,107)),
-        Building("building_10", "Gray gym", pts(134,327, 17,327, 17,158, 134,158)),
-        Building("building_11", "Open Court", pts(365,346, 265,346, 265,194, 365,194)),
-        Building("building_14", "Building 14", pts(795,270, 757,269, 758,241, 796,242)),
-        Building("building_15", "Building 15", pts(835,266, 807,266, 807,246, 835,246)),
+        Building("building_8", "Registrar", pts(928,218, 867,218, 867,147, 928,147), fillColor = UNCOLORED_BROWN),
+        Building("building_9", "Parking Area", pts(1263,222, 1088,222, 1088,107, 1263,107), fillColor = PARKING_AREA_COLOR),
+        Building("building_10", "Gray gym", pts(134,327, 17,327, 17,158, 134,158), fillColor = UNCOLORED_BROWN),
+        Building("building_11", "Open Court", pts(365,346, 265,346, 265,194, 365,194), fillColor = LANDMARK_RED),
+        Building("building_14", "Canteen 2", pts(795,270, 757,269, 758,241, 796,242), fillColor = CANTEEN_GREEN),
+        Building("building_15", "Canteen 3", pts(835,266, 807,266, 807,246, 835,246), fillColor = CANTEEN_GREEN),
         // Building 16 shifted +5 in x (830->835, 855->860) so its left edge meets
         // Building 15's right edge (835) instead of overlapping it by 5px.
-        Building("building_16", "Building 16", pts(860,264, 835,264, 835,245, 860,245)),
+        Building("building_16", "Printing Services", pts(860,264, 835,264, 835,245, 860,245), fillColor = CANTEEN_GREEN),
         // Resized to exactly match Building 16's footprint (25 x 19),
         // kept centered on Building 17's original spot (old center was
         // ~885.5, 264 - the original corners were 866,294 / 863,236 /
         // 905,234 / 908,292).
-        Building("building_17", "Building 17", pts(898,274, 873,274, 873,255, 898,255)),
+        Building("building_17", "Canteen 4", pts(898,274, 873,274, 873,255, 898,255), fillColor = CANTEEN_GREEN),
         // New building the same size Building 17 used to be (45 x 60),
         // centered between Building 17's old center and the Hostel's center.
-        Building("building_27", "Building 27", pts(975,313, 930,313, 930,253, 975,253)),
-        Building("building_20", "School Van Parking Area", pts(750,356, 713,356, 713,325, 750,325)),
-        Building("building_21", "Building 21", pts(814,330, 778,330, 778,283, 814,283)),
-        Building("building_22", "Hostel", pts(1002,335, 999,271, 1037,270, 1040,334), floor = 2),
+        Building("building_27", "HM Building", pts(975,313, 930,313, 930,253, 975,253), fillColor = HM_ORANGE),
+        Building("building_20", "School Van Parking Area", pts(750,356, 713,356, 713,325, 750,325), fillColor = PARKING_AREA_COLOR),
+        Building("building_21", "Canteen 1", pts(814,330, 778,330, 778,283, 814,283), fillColor = CANTEEN_GREEN),
+        Building("building_22", "Hostel", pts(1002,335, 999,271, 1037,270, 1040,334), fillColor = LANDMARK_RED, floor = 2),
         // Ground-floor duplicate of building_22 above, per request: floor 1 should
         // also show the floor-2 buildings (same shape/spot), just with a different
         // id so it doesn't collide with the floor=2 original.
-        Building("building_22_gf", "Hostel", pts(1002,335, 999,271, 1037,270, 1040,334)),
-        Building("building_23", "Guard's House Main", pts(1206,383, 1178,383, 1178,356, 1206,356)),
-        Building("building_25", "Guard's House", pts(666,492, 646,492, 646,471, 666,471)),
-        Building("building_26", "Ancient", pts(763,464, 679,464, 679,402, 763,402)),
+        Building("building_22_gf", "Hostel", pts(1002,335, 999,271, 1037,270, 1040,334), fillColor = LANDMARK_RED),
+        Building("building_23", "Guard's House Main", pts(1206,383, 1178,383, 1178,356, 1206,356), fillColor = GUARD_PINK),
+        Building("building_25", "Guard's House", pts(666,492, 646,492, 646,471, 666,471), fillColor = GUARD_PINK),
+        Building("building_26", "Ancient", pts(763,464, 679,464, 679,402, 763,402), fillColor = UNCOLORED_BROWN),
     )
 
     // -----------------------------------------------------------------
@@ -174,12 +197,12 @@ object CampusBuildings {
         // Ground-floor duplicates of South Building - same shapes/labels,
         // just renamed ids, so floor 1 shows these too (same treatment as the
         // Hostel/IT duplicates above; South is no longer excluded).
-        Building("building_24a_gf", "South - CR 1", pts(333,476, 308,476, 308,416, 333,416)),
+        Building("building_24a_gf", "South - CR 1", pts(333,476, 308,476, 308,416, 333,416), fillColor = LANDMARK_RED),
         Building("building_24b_gf", "South - Room 1", pts(389,476, 333,476, 333,416, 389,416), fillColor = HM_ORANGE),
         Building("building_24c_gf", "South - Room 2", pts(445,476, 389,476, 389,416, 445,416), fillColor = HM_ORANGE),
         Building("building_24d_gf", "South - Room 3", pts(502,476, 445,476, 445,416, 502,416), fillColor = HM_ORANGE),
         Building("building_24e_gf", "South - Room 4", pts(558,476, 502,476, 502,416, 558,416), fillColor = HM_ORANGE),
-        Building("building_24f_gf", "South - CR 2", pts(583,476, 558,476, 558,416, 583,416)),
+        Building("building_24f_gf", "South - CR 2", pts(583,476, 558,476, 558,416, 583,416), fillColor = LANDMARK_RED),
     )
 
     // -----------------------------------------------------------------
@@ -199,12 +222,12 @@ object CampusBuildings {
         // Building 18 side
         Building("building_18a", "TM - Room 4", pts(163,294, 162,255, 206,255, 207,294), fillColor = TM_YELLOW),
 
-        Building("building_24a", "South - CR 1", pts(333,476, 308,476, 308,416, 333,416), floor = 2),
+        Building("building_24a", "South - CR 1", pts(333,476, 308,476, 308,416, 333,416), fillColor = LANDMARK_RED, floor = 2),
         Building("building_24b", "South - Room 1", pts(389,476, 333,476, 333,416, 389,416), fillColor = TM_YELLOW, floor = 2),
         Building("building_24c", "South - Room 2", pts(445,476, 389,476, 389,416, 445,416), fillColor = TM_YELLOW, floor = 2),
         Building("building_24d", "South - Room 3", pts(502,476, 445,476, 445,416, 502,416), fillColor = TM_YELLOW, floor = 2),
         Building("building_24e", "South - Room 4", pts(558,476, 502,476, 502,416, 558,416), fillColor = TM_YELLOW, floor = 2),
-        Building("building_24f", "South - CR 2", pts(583,476, 558,476, 558,416, 583,416), floor = 2),
+        Building("building_24f", "South - CR 2", pts(583,476, 558,476, 558,416, 583,416), fillColor = LANDMARK_RED, floor = 2),
     )
 
     // -----------------------------------------------------------------
