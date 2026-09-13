@@ -220,12 +220,12 @@ object CampusBuildings {
     val TM_BUILDINGS: List<Building> = listOf(
         // Building 6 side (Room 1's left edge nudged from x240 -> x247 so it
         // stops overlapping the CR at building_1, which ends at x247).
-        Building("building_6a", "TM - Room 1", pts(283,176, 247,176, 247,131, 283,131), fillColor = TM_YELLOW),
-        Building("building_6b", "TM - Room 2", pts(325,176, 283,176, 283,131, 325,131), fillColor = TM_YELLOW),
-        Building("building_6c", "TM - Room 3", pts(368,176, 325,176, 325,131, 368,131), fillColor = TM_YELLOW),
+        Building("building_6a", "TM - Room 1", pts(283,176, 247,176, 247,131, 283,131), fillColor = TM_YELLOW, reservable = true),
+        Building("building_6b", "TM - Room 2", pts(325,176, 283,176, 283,131, 325,131), fillColor = TM_YELLOW, reservable = true),
+        Building("building_6c", "TM - Room 3", pts(368,176, 325,176, 325,131, 368,131), fillColor = TM_YELLOW, reservable = true),
 
         // Building 18 side
-        Building("building_18a", "TM - Room 4", pts(163,294, 162,255, 206,255, 207,294), fillColor = TM_YELLOW),
+        Building("building_18a", "TM - Room 4", pts(163,294, 162,255, 206,255, 207,294), fillColor = TM_YELLOW, reservable = true),
 
         Building("building_24a", "South - CR 1", pts(333,476, 308,476, 308,416, 333,416), fillColor = LANDMARK_RED, floor = 2),
         Building("building_24b", "South - Room 1", pts(389,476, 333,476, 333,416, 389,416), fillColor = TM_YELLOW, floor = 2, reservable = true),
