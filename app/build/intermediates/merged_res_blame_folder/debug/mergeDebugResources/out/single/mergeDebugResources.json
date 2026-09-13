@@ -24,6 +24,10 @@
         "source": "com.example.dbtest.app-main-69:/mipmap-xxhdpi/ic_launcher.webp"
     },
     {
+        "merged": "com.example.dbtest.app-debug-67:/drawable_ic_close.xml.flat",
+        "source": "com.example.dbtest.app-main-69:/drawable/ic_close.xml"
+    },
+    {
         "merged": "com.example.dbtest.app-debug-67:/layout_campus_map.xml.flat",
         "source": "com.example.dbtest.app-main-69:/layout/campus_map.xml"
     },
@@ -38,6 +42,10 @@
     {
         "merged": "com.example.dbtest.app-debug-67:/layout_settings.xml.flat",
         "source": "com.example.dbtest.app-main-69:/layout/settings.xml"
+    },
+    {
+        "merged": "com.example.dbtest.app-debug-67:/layout_room_status.xml.flat",
+        "source": "com.example.dbtest.app-main-69:/layout/room_status.xml"
     },
     {
         "merged": "com.example.dbtest.app-debug-67:/layout_reservation.xml.flat",
@@ -70,6 +78,10 @@
     {
         "merged": "com.example.dbtest.app-debug-67:/mipmap-mdpi_ic_launcher.webp.flat",
         "source": "com.example.dbtest.app-main-69:/mipmap-mdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "com.example.dbtest.app-debug-67:/drawable_room_status_bg.xml.flat",
+        "source": "com.example.dbtest.app-main-69:/drawable/room_status_bg.xml"
     },
     {
         "merged": "com.example.dbtest.app-debug-67:/xml_backup_rules.xml.flat",

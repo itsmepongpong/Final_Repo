@@ -44,8 +44,6 @@ class SiteMapView @JvmOverloads constructor(
             invalidate()
         }
 
-    // Outer boundary of the beige walkway network (see CampusBuildings.Pathway),
-    // in the same design space as `buildings`. Drawn beneath all buildings.
     var pathwayOutline: List<PointF> = emptyList()
         set(value) {
             field = value
@@ -53,9 +51,6 @@ class SiteMapView @JvmOverloads constructor(
             invalidate()
         }
 
-    // Interior gaps cut out of the pathway fill (buildings/open ground that
-    // sit inside the walkway's bounding area), combined with pathwayOutline
-    // using an even-odd fill rule.
     var pathwayHoles: List<List<PointF>> = emptyList()
         set(value) {
             field = value
@@ -63,8 +58,6 @@ class SiteMapView @JvmOverloads constructor(
             invalidate()
         }
 
-    // Fill color for the pathway. Defaults to the beige tone matched from
-    // the reference floor plan image.
     var pathwayColor: Int = Color.argb(255, 236, 231, 192)
         set(value) {
             field = value
@@ -72,18 +65,12 @@ class SiteMapView @JvmOverloads constructor(
             invalidate()
         }
 
-    // Which floor is "active" right now. Buildings whose Building.floor matches
-    // this are drawn at full opacity and are the only ones tappable. Buildings
-    // on the other floor are still drawn (as a faded reference/overlay) but
-    // don't respond to taps.
     var activeFloor: Int = 1
         set(value) {
             field = value
             invalidate()
         }
 
-    // How much to fade buildings that are NOT on activeFloor. 1f = no fade
-    // (fully visible), 0f = invisible. 0.3f reads as a light "ghost" outline.
     var otherFloorAlphaFactor: Float = 0.3f
         set(value) {
             field = value.coerceIn(0f, 1f)
@@ -95,6 +82,8 @@ class SiteMapView @JvmOverloads constructor(
 
     var onBuildingSelected: ((Building?) -> Unit)? = null
 
+    var onBuildingLongClick: ((Building) -> Unit)? = null
+
     var minZoom = 0.75f
     var maxZoom = 6f
 
@@ -105,7 +94,6 @@ class SiteMapView @JvmOverloads constructor(
     var rotateEnabled = true
 
 
-    // Default fill color used by any building that doesn't set its own Building.fillColor.
     private var defaultFillColor = Color.argb(90, 187, 134, 252) // subtle purple_200 tint, matches app theme
 
     private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -119,8 +107,6 @@ class SiteMapView @JvmOverloads constructor(
         color = defaultPressedFillColor
     }
 
-    // Tracked separately from strokePaint's live color so we can fade it back
-    // to full strength for the active floor and dimmed for the other floor.
     private var strokeColor = Color.argb(200, 0, 0, 0)
 
     private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -142,10 +128,6 @@ class SiteMapView @JvmOverloads constructor(
 
     private var pathwayPath: Path? = null
 
-    // Builds pathwayPath from pathwayOutline + pathwayHoles. EVEN_ODD fill
-    // means the outline is filled, then each hole "un-fills" whatever it
-    // overlaps - exactly what's needed to punch buildings/open ground out
-    // of the walkway shape.
     private fun rebuildPathwayPath() {
         if (pathwayOutline.isEmpty()) {
             pathwayPath = null
@@ -281,11 +263,6 @@ class SiteMapView @JvmOverloads constructor(
         for (e in entries) {
             val isActiveFloor = e.building.floor == activeFloor
 
-            // Skip entries that opted out of being ghosted onto the other
-            // floor (Building.showOnOtherFloor = false) - e.g. a room that's
-            // split on this floor but merged into a differently-shaped room
-            // on the other floor, where a faded ghost outline would just
-            // draw a stray line/color blend across the other floor's room.
             if (!isActiveFloor && !e.building.showOnOtherFloor) continue
 
             val isPressed = e.building.id == pressedId
@@ -310,8 +287,6 @@ class SiteMapView @JvmOverloads constructor(
         canvas.restore()
     }
 
-    // Multiplies RGB toward black (keeping alpha, boosted slightly) to get a
-    // "pressed" shade of a building's own fillColor, e.g. gray -> darker gray.
     private fun darkenColor(color: Int, factor: Float = 0.55f): Int {
         val a = (Color.alpha(color) * 1.3f).toInt().coerceIn(0, 255)
         val r = (Color.red(color) * factor).toInt().coerceIn(0, 255)
@@ -320,8 +295,7 @@ class SiteMapView @JvmOverloads constructor(
         return Color.argb(a, r, g, b)
     }
 
-    // Scales just the alpha channel down by factor, keeping RGB the same -
-    // used to "ghost" the other floor's buildings.
+
     private fun fadeColor(color: Int, factor: Float): Int {
         val a = (Color.alpha(color) * factor).toInt().coerceIn(0, 255)
         return Color.argb(a, Color.red(color), Color.green(color), Color.blue(color))
@@ -335,9 +309,6 @@ class SiteMapView @JvmOverloads constructor(
 
     private fun findBuildingAt(viewX: Float, viewY: Float): Entry? {
         val p = screenToDesign(viewX, viewY)
-        // iterate in reverse so buildings drawn last (on top) win hit-testing ties.
-        // Only the active floor's buildings are tappable - the other floor is
-        // drawn faded purely as a reference overlay.
         for (e in entries.asReversed()) {
             if (e.building.floor != activeFloor) continue
             if (!e.building.clickable) continue
@@ -393,6 +364,12 @@ class SiteMapView @JvmOverloads constructor(
         return Math.toDegrees(atan2(dy.toDouble(), dx.toDouble())).toFloat()
     }
 
+    // Long-press detection: scheduled on ACTION_DOWN, fired after the system's
+    // standard long-press timeout if the finger hasn't moved or lifted yet.
+    // Cancelled early on drag (ACTION_MOVE) or release (ACTION_UP).
+    private val longPressHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private var longPressRunnable: Runnable? = null
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         scaleGestureDetector.onTouchEvent(event)
 
@@ -404,6 +381,15 @@ class SiteMapView @JvmOverloads constructor(
                     selectedId = hit.building.id
                     onBuildingSelected?.invoke(hit.building)
                     invalidate()
+
+                    longPressRunnable = Runnable {
+                        onBuildingLongClick?.invoke(hit.building)
+                        performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+                    }
+                    longPressHandler.postDelayed(
+                        longPressRunnable!!,
+                        android.view.ViewConfiguration.getLongPressTimeout().toLong()
+                    )
                 }
                 lastTouchX = event.x
                 lastTouchY = event.y
@@ -417,6 +403,7 @@ class SiteMapView @JvmOverloads constructor(
                     rotatePointerId1 = event.getPointerId(0)
                     rotatePointerId2 = event.getPointerId(1)
                     previousAngle = angleBetween(event, rotatePointerId1, rotatePointerId2)
+                    longPressRunnable?.let { longPressHandler.removeCallbacks(it) }
                     if (pressedId != null) {
                         pressedId = null
                         invalidate()
@@ -446,6 +433,7 @@ class SiteMapView @JvmOverloads constructor(
                     val dy = event.y - lastTouchY
                     if (!isDragging && hypot(dx.toDouble(), dy.toDouble()) > touchSlop) {
                         isDragging = true
+                        longPressRunnable?.let { longPressHandler.removeCallbacks(it) }
                         if (pressedId != null) {
                             pressedId = null
                             invalidate()
@@ -474,6 +462,7 @@ class SiteMapView @JvmOverloads constructor(
             }
 
             MotionEvent.ACTION_UP -> {
+                longPressRunnable?.let { longPressHandler.removeCallbacks(it) }
                 if (!isDragging) {
                     val hit = findBuildingAt(event.x, event.y)
                     if (hit != null && hit.building.id == pressedId) {
@@ -490,6 +479,7 @@ class SiteMapView @JvmOverloads constructor(
             }
 
             MotionEvent.ACTION_CANCEL -> {
+                longPressRunnable?.let { longPressHandler.removeCallbacks(it) }
                 pressedId = null
                 isDragging = false
                 rotatePointerId1 = -1

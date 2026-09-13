@@ -9,9 +9,11 @@ color teal_700
 color white
 drawable building
 drawable ic_add
+drawable ic_close
 drawable ic_launcher_background
 drawable ic_launcher_foreground
 drawable menu_button
+drawable room_status_bg
 drawable settings_logo
 id Email
 id FullName
@@ -23,6 +25,7 @@ id action_listFragment_to_addFragment
 id addFragment
 id addbutton
 id btnBack
+id btnCloseRoomStatus
 id btnDelete
 id btnEdit
 id btn_cancel_reservation
@@ -64,6 +67,10 @@ id til_name
 id til_password
 id til_username
 id toolbar
+id tvDialogDate
+id tvDialogReservedBy
+id tvDialogRoomName
+id tvDialogTimeSlot
 id tvFullName
 id tvUsername
 id tv_building_name
@@ -84,6 +91,7 @@ layout fragment_list
 layout item_user
 layout profile_info
 layout reservation
+layout room_status
 layout settings
 layout slider
 mipmap ic_launcher
@@ -103,6 +111,7 @@ string hello_blank_fragment
 string password
 string project_id
 string username
+style RoomStatusDialogTheme
 style Theme.Dbtest
 xml backup_rules
 xml data_extraction_rules

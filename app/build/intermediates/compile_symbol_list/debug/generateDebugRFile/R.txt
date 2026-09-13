@@ -7,9 +7,11 @@ int color teal_700 0x0
 int color white 0x0
 int drawable building 0x0
 int drawable ic_add 0x0
+int drawable ic_close 0x0
 int drawable ic_launcher_background 0x0
 int drawable ic_launcher_foreground 0x0
 int drawable menu_button 0x0
+int drawable room_status_bg 0x0
 int drawable settings_logo 0x0
 int id Email 0x0
 int id FullName 0x0
@@ -21,6 +23,7 @@ int id action_listFragment_to_addFragment 0x0
 int id addFragment 0x0
 int id addbutton 0x0
 int id btnBack 0x0
+int id btnCloseRoomStatus 0x0
 int id btnDelete 0x0
 int id btnEdit 0x0
 int id btn_cancel_reservation 0x0
@@ -62,6 +65,10 @@ int id til_name 0x0
 int id til_password 0x0
 int id til_username 0x0
 int id toolbar 0x0
+int id tvDialogDate 0x0
+int id tvDialogReservedBy 0x0
+int id tvDialogRoomName 0x0
+int id tvDialogTimeSlot 0x0
 int id tvFullName 0x0
 int id tvUsername 0x0
 int id tv_building_name 0x0
@@ -82,6 +89,7 @@ int layout fragment_list 0x0
 int layout item_user 0x0
 int layout profile_info 0x0
 int layout reservation 0x0
+int layout room_status 0x0
 int layout settings 0x0
 int layout slider 0x0
 int mipmap ic_launcher 0x0
@@ -101,6 +109,7 @@ int string hello_blank_fragment 0x0
 int string password 0x0
 int string project_id 0x0
 int string username 0x0
+int style RoomStatusDialogTheme 0x0
 int style Theme_Dbtest 0x0
 int xml backup_rules 0x0
 int xml data_extraction_rules 0x0
