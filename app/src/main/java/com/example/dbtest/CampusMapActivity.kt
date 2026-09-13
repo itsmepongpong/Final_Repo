@@ -3,6 +3,7 @@ package com.example.dbtest
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -118,6 +119,18 @@ class CampusMapActivity : AppCompatActivity() {
             )
         }
 
+        // Long-press (touchscreen's equivalent of "hover") pops up a quick
+        // read-only dialog showing this building's active reservation(s),
+        // without opening the side slider or zooming in. Restricted to
+        // reservable rooms only (BSIT, BSHM, BSTM, BSE) - everything else
+        // (CR, faculty offices, canteens, parking, etc.) has nothing worth
+        // showing a status popup for.
+        siteMapView.onBuildingLongClick = { building ->
+            if (building.reservable) {
+                showRoomHoverStatusDialog(building)
+            }
+        }
+
         // Handle the slider's reserve button click to open ReservationActivity.
         // Always allowed - even a building in use right now can be booked for a different time.
         slider.onReserveClick = {
@@ -209,5 +222,53 @@ class CampusMapActivity : AppCompatActivity() {
             .scaleY(1f)
             .setDuration(animDuration)
             .start()
+    }
+
+    // Read-only "what's booked right now/next" popup for a long-pressed building.
+    // Separate from the Reserve slider - this never lets the user book anything,
+    // it's purely informational (and works for non-reservable buildings too).
+    private fun showRoomHoverStatusDialog(building: Building) {
+        lifecycleScope.launch {
+            val activeReservations = reservationRepository.getActiveReservationsForBuilding(building.label)
+
+            val dialogView = layoutInflater.inflate(R.layout.room_status, null)
+            val tvRoomName = dialogView.findViewById<TextView>(R.id.tvDialogRoomName)
+            val tvReservedBy = dialogView.findViewById<TextView>(R.id.tvDialogReservedBy)
+            val tvDate = dialogView.findViewById<TextView>(R.id.tvDialogDate)
+            val tvTimeSlot = dialogView.findViewById<TextView>(R.id.tvDialogTimeSlot)
+            val btnClose = dialogView.findViewById<android.widget.ImageButton>(R.id.btnCloseRoomStatus)
+
+            tvRoomName.text = building.label
+
+            if (activeReservations.isNotEmpty()) {
+                val statusBuilder = StringBuilder()
+                activeReservations.forEachIndexed { index, reservation ->
+                    if (index > 0) {
+                        statusBuilder.append("\n")
+                    }
+                    statusBuilder.append("By: ${reservation.reservedByName}\n")
+                    statusBuilder.append("Date: ${reservation.date}\n")
+                    statusBuilder.append("Time: ${reservation.startTime} - ${reservation.endTime}\n")
+                }
+                tvReservedBy.text = statusBuilder.toString().trimEnd()
+                tvDate.text = ""
+                tvTimeSlot.text = ""
+            } else {
+                tvReservedBy.text = "Status: Available"
+                tvDate.text = "No upcoming reservations found."
+                tvTimeSlot.text = ""
+            }
+
+            val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(
+                this@CampusMapActivity,
+                R.style.RoomStatusDialogTheme
+            )
+                .setView(dialogView)
+                .show()
+
+            btnClose.setOnClickListener {
+                dialog.dismiss()
+            }
+        }
     }
 }

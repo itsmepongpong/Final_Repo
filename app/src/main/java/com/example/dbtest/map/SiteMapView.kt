@@ -95,6 +95,12 @@ class SiteMapView @JvmOverloads constructor(
 
     var onBuildingSelected: ((Building?) -> Unit)? = null
 
+    // Fired when a press on a building is held past the system long-press
+    // timeout without moving/panning away - used to show a reservation-status
+    // popup on hover-equivalent (touchscreens have no real hover), separate
+    // from onBuildingClick's tap-to-open-slider behavior.
+    var onBuildingLongClick: ((Building) -> Unit)? = null
+
     var minZoom = 0.75f
     var maxZoom = 6f
 
@@ -393,6 +399,12 @@ class SiteMapView @JvmOverloads constructor(
         return Math.toDegrees(atan2(dy.toDouble(), dx.toDouble())).toFloat()
     }
 
+    // Long-press detection: scheduled on ACTION_DOWN, fired after the system's
+    // standard long-press timeout if the finger hasn't moved or lifted yet.
+    // Cancelled early on drag (ACTION_MOVE) or release (ACTION_UP).
+    private val longPressHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private var longPressRunnable: Runnable? = null
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         scaleGestureDetector.onTouchEvent(event)
 
@@ -404,6 +416,15 @@ class SiteMapView @JvmOverloads constructor(
                     selectedId = hit.building.id
                     onBuildingSelected?.invoke(hit.building)
                     invalidate()
+
+                    longPressRunnable = Runnable {
+                        onBuildingLongClick?.invoke(hit.building)
+                        performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+                    }
+                    longPressHandler.postDelayed(
+                        longPressRunnable!!,
+                        android.view.ViewConfiguration.getLongPressTimeout().toLong()
+                    )
                 }
                 lastTouchX = event.x
                 lastTouchY = event.y
@@ -417,6 +438,7 @@ class SiteMapView @JvmOverloads constructor(
                     rotatePointerId1 = event.getPointerId(0)
                     rotatePointerId2 = event.getPointerId(1)
                     previousAngle = angleBetween(event, rotatePointerId1, rotatePointerId2)
+                    longPressRunnable?.let { longPressHandler.removeCallbacks(it) }
                     if (pressedId != null) {
                         pressedId = null
                         invalidate()
@@ -446,6 +468,7 @@ class SiteMapView @JvmOverloads constructor(
                     val dy = event.y - lastTouchY
                     if (!isDragging && hypot(dx.toDouble(), dy.toDouble()) > touchSlop) {
                         isDragging = true
+                        longPressRunnable?.let { longPressHandler.removeCallbacks(it) }
                         if (pressedId != null) {
                             pressedId = null
                             invalidate()
@@ -474,6 +497,7 @@ class SiteMapView @JvmOverloads constructor(
             }
 
             MotionEvent.ACTION_UP -> {
+                longPressRunnable?.let { longPressHandler.removeCallbacks(it) }
                 if (!isDragging) {
                     val hit = findBuildingAt(event.x, event.y)
                     if (hit != null && hit.building.id == pressedId) {
@@ -490,6 +514,7 @@ class SiteMapView @JvmOverloads constructor(
             }
 
             MotionEvent.ACTION_CANCEL -> {
+                longPressRunnable?.let { longPressHandler.removeCallbacks(it) }
                 pressedId = null
                 isDragging = false
                 rotatePointerId1 = -1

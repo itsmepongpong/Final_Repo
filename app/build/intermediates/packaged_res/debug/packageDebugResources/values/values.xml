@@ -21,5 +21,20 @@
     <string name="password">Password</string>
     <string name="project_id" translatable="false">dbtest-81342768</string>
     <string name="username">UserName</string>
-    <style name="Theme.Dbtest" parent="Theme.Material3.DayNight.NoActionBar"/>
+    <style name="RoomStatusDialogTheme" parent="Theme.Material3.Light.Dialog.Alert">
+
+        <item name="colorSurface">#FFFFFF</item>
+        <item name="colorOnSurface">#000000</item>
+
+        <item name="android:colorBackground">#FFFFFF</item>
+
+        <item name="android:windowBackground">@drawable/room_status_bg</item>
+
+        <item name="android:navigationBarColor">#FFFFFF</item>
+        <item name="android:windowLightNavigationBar">true</item>
+
+    </style>
+    <style name="Theme.Dbtest" parent="Theme.Material3.DayNight.NoActionBar">
+        
+    </style>
 </resources>
