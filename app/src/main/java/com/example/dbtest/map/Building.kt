@@ -176,7 +176,7 @@ object CampusBuildings {
         // IT Building 2 (Building 19)
         Building("building_19a", "IT 2B Room", pts(533,373, 533,340, 570,338, 570,373), fillColor = IT_GRAY, reservable = true),
         Building("building_19b", "IT 2A Room", pts(570,372, 570,338, 610,338, 610,372), fillColor = IT_GRAY, reservable = true),
-        Building("building_19c", "IT Faculty", pts(611,372, 611,347, 637,349, 639,371), fillColor = IT_GRAY, reservable = true),
+        Building("building_19c", "IT Faculty", pts(611,372, 611,347, 637,349, 639,371), fillColor = IT_GRAY),
     )
 
     // -----------------------------------------------------------------
@@ -197,7 +197,7 @@ object CampusBuildings {
         // across that merged room.
         Building("building_13a_gf1", "HM Room 5", pts(538,198, 577,198, 577,229, 538,229), fillColor = HM_ORANGE, showOnOtherFloor = false, reservable = true),
         Building("building_13a_gf2", "HM Room 6", pts(577,198, 615,198, 615,229, 577,229), fillColor = HM_ORANGE, showOnOtherFloor = false, reservable = true),
-        Building("building_12e", "Faculty", pts(427,368, 427,330, 475,330, 476,368), fillColor = HM_ORANGE, reservable = true),
+        Building("building_12e", "Faculty", pts(427,368, 427,330, 475,330, 476,368), fillColor = HM_ORANGE),
 
         // Ground-floor duplicates of South Building - same shapes/labels,
         // just renamed ids, so floor 1 shows these too (same treatment as the
@@ -228,10 +228,10 @@ object CampusBuildings {
         Building("building_18a", "TM - Room 4", pts(163,294, 162,255, 206,255, 207,294), fillColor = TM_YELLOW),
 
         Building("building_24a", "South - CR 1", pts(333,476, 308,476, 308,416, 333,416), fillColor = LANDMARK_RED, floor = 2),
-        Building("building_24b", "South - Room 1", pts(389,476, 333,476, 333,416, 389,416), fillColor = TM_YELLOW, floor = 2),
-        Building("building_24c", "South - Room 2", pts(445,476, 389,476, 389,416, 445,416), fillColor = TM_YELLOW, floor = 2),
-        Building("building_24d", "South - Room 3", pts(502,476, 445,476, 445,416, 502,416), fillColor = TM_YELLOW, floor = 2),
-        Building("building_24e", "South - Room 4", pts(558,476, 502,476, 502,416, 558,416), fillColor = TM_YELLOW, floor = 2),
+        Building("building_24b", "South - Room 1", pts(389,476, 333,476, 333,416, 389,416), fillColor = TM_YELLOW, floor = 2, reservable = true),
+        Building("building_24c", "South - Room 2", pts(445,476, 389,476, 389,416, 445,416), fillColor = TM_YELLOW, floor = 2, reservable = true),
+        Building("building_24d", "South - Room 3", pts(502,476, 445,476, 445,416, 502,416), fillColor = TM_YELLOW, floor = 2, reservable = true),
+        Building("building_24e", "South - Room 4", pts(558,476, 502,476, 502,416, 558,416), fillColor = TM_YELLOW, floor = 2, reservable = true),
         Building("building_24f", "South - CR 2", pts(583,476, 558,476, 558,416, 583,416), fillColor = LANDMARK_RED, floor = 2),
     )
 
