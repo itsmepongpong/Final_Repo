@@ -44,6 +44,24 @@ class SiteMapView @JvmOverloads constructor(
             invalidate()
         }
 
+    // Which floor is "active" right now. Buildings whose Building.floor matches
+    // this are drawn at full opacity and are the only ones tappable. Buildings
+    // on the other floor are still drawn (as a faded reference/overlay) but
+    // don't respond to taps.
+    var activeFloor: Int = 1
+        set(value) {
+            field = value
+            invalidate()
+        }
+
+    // How much to fade buildings that are NOT on activeFloor. 1f = no fade
+    // (fully visible), 0f = invisible. 0.3f reads as a light "ghost" outline.
+    var otherFloorAlphaFactor: Float = 0.3f
+        set(value) {
+            field = value.coerceIn(0f, 1f)
+            invalidate()
+        }
+
 
     var onBuildingClick: ((Building) -> Unit)? = null
 
@@ -72,10 +90,15 @@ class SiteMapView @JvmOverloads constructor(
         style = Paint.Style.FILL
         color = defaultPressedFillColor
     }
+
+    // Tracked separately from strokePaint's live color so we can fade it back
+    // to full strength for the active floor and dimmed for the other floor.
+    private var strokeColor = Color.argb(200, 0, 0, 0)
+
     private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = 2f
-        color = Color.argb(200, 0, 0, 0)
+        color = strokeColor
     }
     private val selectedStrokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
@@ -93,7 +116,7 @@ class SiteMapView @JvmOverloads constructor(
     ) {
         fill?.let { defaultFillColor = it }
         pressedFill?.let { defaultPressedFillColor = it }
-        stroke?.let { strokePaint.color = it }
+        stroke?.let { strokeColor = it }
         selectedStroke?.let { selectedStrokePaint.color = it }
         invalidate()
     }
@@ -196,15 +219,30 @@ class SiteMapView @JvmOverloads constructor(
         }
 
         for (e in entries) {
+            val isActiveFloor = e.building.floor == activeFloor
+
+            // Skip entries that opted out of being ghosted onto the other
+            // floor (Building.showOnOtherFloor = false) - e.g. a room that's
+            // split on this floor but merged into a differently-shaped room
+            // on the other floor, where a faded ghost outline would just
+            // draw a stray line/color blend across the other floor's room.
+            if (!isActiveFloor && !e.building.showOnOtherFloor) continue
+
             val isPressed = e.building.id == pressedId
             val isSelected = e.building.id == selectedId
+
             if (isPressed || isSelected) {
+                // Pressed/selected only ever happens on the active floor (see
+                // findBuildingAt), so no fading needed here.
                 pressedFillPaint.color = e.building.fillColor?.let { darkenColor(it) } ?: defaultPressedFillColor
                 canvas.drawPath(e.path, pressedFillPaint)
                 canvas.drawPath(e.path, selectedStrokePaint)
             } else {
-                fillPaint.color = e.building.fillColor ?: defaultFillColor
+                val baseFill = e.building.fillColor ?: defaultFillColor
+                fillPaint.color = if (isActiveFloor) baseFill else fadeColor(baseFill, otherFloorAlphaFactor)
                 canvas.drawPath(e.path, fillPaint)
+
+                strokePaint.color = if (isActiveFloor) strokeColor else fadeColor(strokeColor, otherFloorAlphaFactor)
                 canvas.drawPath(e.path, strokePaint)
             }
         }
@@ -222,6 +260,13 @@ class SiteMapView @JvmOverloads constructor(
         return Color.argb(a, r, g, b)
     }
 
+    // Scales just the alpha channel down by factor, keeping RGB the same -
+    // used to "ghost" the other floor's buildings.
+    private fun fadeColor(color: Int, factor: Float): Int {
+        val a = (Color.alpha(color) * factor).toInt().coerceIn(0, 255)
+        return Color.argb(a, Color.red(color), Color.green(color), Color.blue(color))
+    }
+
     private fun screenToDesign(x: Float, y: Float): PointF {
         val pts = floatArrayOf(x, y)
         inverseMatrix.mapPoints(pts)
@@ -230,8 +275,12 @@ class SiteMapView @JvmOverloads constructor(
 
     private fun findBuildingAt(viewX: Float, viewY: Float): Entry? {
         val p = screenToDesign(viewX, viewY)
-        // iterate in reverse so buildings drawn last (on top) win hit-testing ties
+        // iterate in reverse so buildings drawn last (on top) win hit-testing ties.
+        // Only the active floor's buildings are tappable - the other floor is
+        // drawn faded purely as a reference overlay.
         for (e in entries.asReversed()) {
+            if (e.building.floor != activeFloor) continue
+            if (!e.building.clickable) continue
             if (e.bounds.contains(p.x, p.y) && e.region.contains(p.x.toInt(), p.y.toInt())) {
                 return e
             }

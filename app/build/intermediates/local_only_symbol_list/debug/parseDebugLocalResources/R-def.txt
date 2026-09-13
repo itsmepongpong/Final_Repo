@@ -49,6 +49,7 @@ id et_purpose
 id et_start_time
 id et_username
 id floatingActionButton
+id floorToggleButton
 id fragment_container_view
 id listFragment
 id ll_existing_slots
@@ -76,10 +77,10 @@ id tv_username
 layout activity_login
 layout activity_main
 layout activity_sign_up
+layout campus_map
 layout edit_profile
 layout fragment_add
 layout fragment_list
-layout itbuilding
 layout item_user
 layout profile_info
 layout reservation

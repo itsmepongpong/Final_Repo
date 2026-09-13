@@ -24,6 +24,10 @@
         "source": "com.example.dbtest.app-main-69:/mipmap-xxhdpi/ic_launcher.webp"
     },
     {
+        "merged": "com.example.dbtest.app-debug-67:/layout_campus_map.xml.flat",
+        "source": "com.example.dbtest.app-main-69:/layout/campus_map.xml"
+    },
+    {
         "merged": "com.example.dbtest.app-debug-67:/mipmap-hdpi_ic_launcher.webp.flat",
         "source": "com.example.dbtest.app-main-69:/mipmap-hdpi/ic_launcher.webp"
     },
@@ -66,10 +70,6 @@
     {
         "merged": "com.example.dbtest.app-debug-67:/mipmap-mdpi_ic_launcher.webp.flat",
         "source": "com.example.dbtest.app-main-69:/mipmap-mdpi/ic_launcher.webp"
-    },
-    {
-        "merged": "com.example.dbtest.app-debug-67:/layout_itbuilding.xml.flat",
-        "source": "com.example.dbtest.app-main-69:/layout/itbuilding.xml"
     },
     {
         "merged": "com.example.dbtest.app-debug-67:/xml_backup_rules.xml.flat",

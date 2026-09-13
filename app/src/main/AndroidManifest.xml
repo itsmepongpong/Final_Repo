@@ -39,7 +39,7 @@
             android:theme="@style/Theme.Dbtest" />
 
         <activity
-            android:name=".ITBuilding"
+            android:name=".CampusMapActivity"
             android:exported="false"
             android:theme="@style/Theme.Dbtest" />
 

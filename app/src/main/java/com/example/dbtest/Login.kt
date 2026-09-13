@@ -29,7 +29,7 @@ class LoginActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 val user = userRepository.getUserByUsername(savedUsername)
                 if (user != null) {
-                    val target = if (user.admin) MainActivity::class.java else ITBuilding::class.java
+                    val target = if (user.admin) MainActivity::class.java else CampusMapActivity::class.java
                     startActivity(Intent(this@LoginActivity, target))
                     finish()
                 } else {
@@ -89,7 +89,7 @@ class LoginActivity : AppCompatActivity() {
                     if (user.admin) {
                         startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                     } else {
-                        startActivity(Intent(this@LoginActivity, ITBuilding::class.java))
+                        startActivity(Intent(this@LoginActivity, CampusMapActivity::class.java))
                     }
                     finish()
                 } else {
