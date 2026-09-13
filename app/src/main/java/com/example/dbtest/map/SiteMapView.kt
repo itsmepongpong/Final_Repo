@@ -44,6 +44,34 @@ class SiteMapView @JvmOverloads constructor(
             invalidate()
         }
 
+    // Outer boundary of the beige walkway network (see CampusBuildings.Pathway),
+    // in the same design space as `buildings`. Drawn beneath all buildings.
+    var pathwayOutline: List<PointF> = emptyList()
+        set(value) {
+            field = value
+            rebuildPathwayPath()
+            invalidate()
+        }
+
+    // Interior gaps cut out of the pathway fill (buildings/open ground that
+    // sit inside the walkway's bounding area), combined with pathwayOutline
+    // using an even-odd fill rule.
+    var pathwayHoles: List<List<PointF>> = emptyList()
+        set(value) {
+            field = value
+            rebuildPathwayPath()
+            invalidate()
+        }
+
+    // Fill color for the pathway. Defaults to the beige tone matched from
+    // the reference floor plan image.
+    var pathwayColor: Int = Color.argb(255, 236, 231, 192)
+        set(value) {
+            field = value
+            pathwayFillPaint.color = value
+            invalidate()
+        }
+
     // Which floor is "active" right now. Buildings whose Building.floor matches
     // this are drawn at full opacity and are the only ones tappable. Buildings
     // on the other floor are still drawn (as a faded reference/overlay) but
@@ -106,6 +134,36 @@ class SiteMapView @JvmOverloads constructor(
         color = Color.rgb(98, 0, 238)
     }
     private val bitmapPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+
+    private val pathwayFillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+        color = pathwayColor
+    }
+
+    private var pathwayPath: Path? = null
+
+    // Builds pathwayPath from pathwayOutline + pathwayHoles. EVEN_ODD fill
+    // means the outline is filled, then each hole "un-fills" whatever it
+    // overlaps - exactly what's needed to punch buildings/open ground out
+    // of the walkway shape.
+    private fun rebuildPathwayPath() {
+        if (pathwayOutline.isEmpty()) {
+            pathwayPath = null
+            return
+        }
+        val path = Path()
+        path.fillType = Path.FillType.EVEN_ODD
+        addPolygonTo(path, pathwayOutline)
+        pathwayHoles.forEach { addPolygonTo(path, it) }
+        pathwayPath = path
+    }
+
+    private fun addPolygonTo(path: Path, points: List<PointF>) {
+        points.forEachIndexed { i, p ->
+            if (i == 0) path.moveTo(p.x, p.y) else path.lineTo(p.x, p.y)
+        }
+        path.close()
+    }
 
 
     fun setBuildingColors(
@@ -217,6 +275,8 @@ class SiteMapView @JvmOverloads constructor(
             val dst = RectF(0f, 0f, designWidth, designHeight)
             canvas.drawBitmap(bmp, src, dst, bitmapPaint)
         }
+
+        pathwayPath?.let { canvas.drawPath(it, pathwayFillPaint) }
 
         for (e in entries) {
             val isActiveFloor = e.building.floor == activeFloor

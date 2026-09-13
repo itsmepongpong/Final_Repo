@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.dbtest.data.ReservationRepository
 import com.example.dbtest.map.Building
 import com.example.dbtest.map.CampusBuildings
+import com.example.dbtest.map.Pathway
 import com.example.dbtest.map.SiteMapView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
@@ -84,6 +85,11 @@ class CampusMapActivity : AppCompatActivity() {
         // re-tracing the polygons to match it if the photo's proportions differ.
         siteMapView.designWidth = 1284f
         siteMapView.designHeight = 531f
+        // Beige walkway network, traced from the reference floor plan and
+        // drawn beneath every building (see Pathway / SiteMapView.pathwayOutline).
+        siteMapView.pathwayColor = Pathway.COLOR
+        siteMapView.pathwayOutline = Pathway.OUTLINE
+        siteMapView.pathwayHoles = Pathway.HOLES
         // Load every building/room once. Which floor is "active" (full opacity
         // + tappable) vs "ghosted" (faded, reference-only) is controlled by
         // siteMapView.activeFloor below, not by which list gets assigned here.

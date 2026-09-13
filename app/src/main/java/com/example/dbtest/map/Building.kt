@@ -100,7 +100,14 @@ object CampusBuildings {
         // Building 16 shifted +5 in x (830->835, 855->860) so its left edge meets
         // Building 15's right edge (835) instead of overlapping it by 5px.
         Building("building_16", "Building 16", pts(860,264, 835,264, 835,245, 860,245)),
-        Building("building_17", "Building 17", pts(866,294, 863,236, 905,234, 908,292)),
+        // Resized to exactly match Building 16's footprint (25 x 19),
+        // kept centered on Building 17's original spot (old center was
+        // ~885.5, 264 - the original corners were 866,294 / 863,236 /
+        // 905,234 / 908,292).
+        Building("building_17", "Building 17", pts(898,274, 873,274, 873,255, 898,255)),
+        // New building the same size Building 17 used to be (45 x 60),
+        // centered between Building 17's old center and the Hostel's center.
+        Building("building_27", "Building 27", pts(975,313, 930,313, 930,253, 975,253)),
         Building("building_20", "School Van Parking Area", pts(750,356, 713,356, 713,325, 750,325)),
         Building("building_21", "Building 21", pts(814,330, 778,330, 778,283, 814,283)),
         Building("building_22", "Hostel", pts(1002,335, 999,271, 1037,270, 1040,334), floor = 2),
@@ -222,14 +229,65 @@ object CampusBuildings {
     // -----------------------------------------------------------------
     val GROUND_FLOOR: List<Building> = ALL.filter { it.floor != 2 }
     val SECOND_FLOOR: List<Building> = ALL.filter { it.floor == 2 }
+}
 
-    private fun pts(vararg v: Int): List<PointF> {
-        val list = mutableListOf<PointF>()
-        var i = 0
-        while (i < v.size) {
-            list.add(PointF(v[i].toFloat(), v[i + 1].toFloat()))
-            i += 2
-        }
-        return list
+// pts() used to be a private fun nested inside CampusBuildings. Moved to
+// top-level (file-private) so both CampusBuildings and Pathway below can
+// use it.
+private fun pts(vararg v: Int): List<PointF> {
+    val list = mutableListOf<PointF>()
+    var i = 0
+    while (i < v.size) {
+        list.add(PointF(v[i].toFloat(), v[i + 1].toFloat()))
+        i += 2
     }
+    return list
+}
+
+// -----------------------------------------------------------------
+// PATHWAY - the beige walkway network traced from the reference floor
+// plan image, in the same 1284x531 design space as CampusBuildings.
+// Drawn as one outer boundary with several interior holes cut out
+// (buildings/open ground that sit inside the walkway's bounding area),
+// combined into a single Path using the EVEN_ODD fill rule in
+// SiteMapView.
+// -----------------------------------------------------------------
+object Pathway {
+
+    val COLOR: Int = Color.argb(255, 236, 231, 192)
+
+    val OUTLINE: List<PointF> = pts(
+        50,331, 50,392, 61,406, 338,416, 666,406, 666,432, 595,432, 595,449,
+        671,450, 681,529, 688,408, 1319,404, 1329,394, 1251,386, 1244,228,
+        952,222, 954,159, 986,158, 985,149, 948,151, 939,220, 761,218,
+        771,162, 679,162, 670,146, 632,146, 621,121, 510,129, 505,156,
+        468,156, 458,132, 449,160, 410,156, 406,172, 251,176, 250,130,
+        250,154, 226,155, 231,169, 208,175, 212,382, 98,380, 91,330
+    )
+
+    val HOLES: List<List<PointF>> = listOf(
+        pts(666,349, 691,351, 689,385, 662,385),
+        pts(536,341, 618,339, 622,349, 648,351, 648,384, 540,386),
+        pts(1076,235, 1235,236, 1236,385, 1152,388, 1152,299, 1079,296),
+        pts(766,270, 772,232, 872,235, 874,264, 850,274),
+        pts(
+            1138,320, 1136,388, 909,388, 909,301, 901,294, 895,300, 892,386,
+            715,384, 714,351, 722,348, 714,339, 715,326, 732,326, 734,318,
+            786,316, 791,304, 765,301, 765,286, 876,284, 878,235, 1066,234,
+            1068,270, 1056,271, 1068,272, 1069,294, 1059,298, 1059,309
+        ),
+        pts(542,194, 650,195, 645,332, 592,329, 592,234, 544,231),
+        pts(
+            232,195, 265,188, 369,190, 371,261, 371,192, 411,192, 411,382,
+            340,384, 331,374, 328,345, 308,350, 302,385, 231,380
+        ),
+        pts(481,176, 482,372, 469,386, 446,388, 431,381, 431,179),
+        pts(530,149, 598,148, 599,180, 534,182),
+        // Dedicated cutouts for building_17 (resized) and building_27 (new) -
+        // the traced holes above predate those two shapes, so without these
+        // the pathway fill pokes into their rectangles. Padded 3px past each
+        // building's actual footprint so there's no visible seam.
+        pts(901,277, 870,277, 870,252, 901,252),
+        pts(978,316, 927,316, 927,250, 978,250)
+    )
 }
