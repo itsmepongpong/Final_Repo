@@ -23,6 +23,12 @@ class Slider(
     var isOpen = false
         private set
 
+    // Whether the building currently shown in the panel can be reserved at
+    // all (BSIT/BSE/BSHM rooms only, per Building.reservable). Tracked here
+    // so a later setReservationState() call (e.g. from a background refresh)
+    // doesn't re-show the Reserve button for a non-reservable building.
+    private var currentReservable = true
+
     var onOpen: (() -> Unit)? = null
     var onClose: (() -> Unit)? = null
     var onReserveClick: (() -> Unit)? = null
@@ -41,8 +47,9 @@ class Slider(
         }
     }
 
-    fun open(title: String, isReserved: Boolean = false) {
+    fun open(title: String, isReserved: Boolean = false, reservable: Boolean = true) {
         panelTitle.text = title
+        currentReservable = reservable
         setReservationState(isReserved)
         isOpen = true
 
@@ -71,6 +78,8 @@ class Slider(
     }
 
     fun setReservationState(isReserved: Boolean) {
-        btnReserve.visibility = View.VISIBLE
+        // Non-reservable buildings (everything except BSIT/BSE/BSHM rooms)
+        // never show the Reserve button - the panel is info-only for them.
+        btnReserve.visibility = if (currentReservable) View.VISIBLE else View.GONE
     }
 }

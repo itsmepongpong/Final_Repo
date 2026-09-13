@@ -2,93 +2,71 @@ package com.example.dbtest.map
 
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.CornerPathEffect
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.PointF
 
 // -----------------------------------------------------------------
-// PATHWAY - traced from the reference image (tan/khaki walkway color,
-// RGB 236,231,192), then rescaled from the image's native pixel space
-// into the SAME 17-1329 x / 37-529 y design space that CampusBuildings
-// uses, so the walkway lines up under the actual building polygons
-// instead of floating off in a different scale.
+// PATHWAY - built from a corridor "skeleton" (centerline segments
+// connecting building clusters), buffered to a uniform road width and
+// unioned into one shape. Every segment goes somewhere specific - no
+// dead-end spurs poking into open ground with nothing to walk to.
 //
 // Outline is the outer boundary of the walkway network; HOLES are the
-// building footprints / open ground that sit inside that boundary and
-// must be cut out. Drawn as ONE FILLED Path using EVEN_ODD fill rule
-// (outline + holes all added to the same path), which is what gives
-// it the solid, blocky "paved walkway" look instead of thin pointed
-// line segments.
+// courtyard/open-ground gaps enclosed by corridor loops. Drawn as ONE
+// FILLED Path using EVEN_ODD fill rule (outline + holes all added to
+// the same path), which gives the solid, blocky "paved walkway" look.
+//
+// A CornerPathEffect rounds every vertex so the walkway reads as a
+// real paved path (soft corners), and a thin darker border stroke is
+// drawn on top of the fill so the path edge stays crisp/defined even
+// after rounding.
 // -----------------------------------------------------------------
 object Pathway {
 
     val COLOR: Int = Color.argb(255, 236, 231, 192)
+    val BORDER_COLOR: Int = Color.argb(255, 200, 193, 150)
+
+    private const val CORNER_RADIUS = 10f
 
     val OUTLINE: List<PointF> = pts(
-        17,291, 28,381, 668,381, 668,414, 592,414, 592,434, 669,434, 677,529,
-        680,373, 1329,378, 1285,356, 1278,165, 972,160, 971,82, 1004,69,
-        968,72, 956,158, 770,155, 778,87, 619,69, 618,37, 489,47, 485,80,
-        438,55, 437,82, 354,104, 223,104, 204,80, 184,102, 188,352, 70,352, 58,288
+        613,135, 615,131, 614,127, 612,124, 608,123, 506,123, 500,121, 494,123,
+        437,123, 432,125, 430,130, 431,134, 436,137, 491,137, 491,169, 243,169,
+        242,153, 240,150, 236,149, 232,150, 230,153, 229,169, 161,169, 161,103,
+        158,97, 154,95, 146,95, 141,99, 139,105, 139,379, 17,379, 9,385,
+        7,392, 8,397, 13,403, 20,405, 441,405, 442,423, 445,427, 450,429,
+        455,427, 458,423, 459,405, 662,405, 662,480, 664,486, 670,488, 676,486,
+        678,480, 678,405, 761,405, 761,470, 764,474, 770,477, 776,474, 779,470,
+        779,405, 1320,405, 1327,403, 1332,397, 1333,389, 1331,385, 1323,379, 1159,379,
+        1159,376, 1227,376, 1232,372, 1233,368, 1232,364, 1227,360, 1159,360, 1159,186,
+        1161,180, 1159,174, 1159,107, 1157,102, 1153,99, 1148,98, 1145,100, 1141,105,
+        1141,169, 943,169, 943,145, 939,140, 935,139, 931,140, 927,145, 927,169,
+        686,169, 686,144, 682,139, 678,138, 674,139, 670,144, 670,169, 509,169,
+        509,137, 608,137
     )
 
     val HOLES: List<List<PointF>> = listOf(
+        pts(1029,379, 1029,244, 1141,244, 1141,379),
+        pts(779,379, 779,289, 1011,289, 1011,379),
         pts(
-            667,313, 694,313, 695,314, 695,325, 693,326, 693,356, 693,357,
-            665,357, 664,356, 664,334, 665,333, 666,333, 666,314
+            584,379, 584,191, 761,191, 761,226, 752,228, 750,230, 748,235, 750,240,
+            752,242, 761,244, 761,379
         ),
+        pts(927,191, 927,226, 779,226, 779,191),
+        pts(1011,191, 1011,226, 943,226, 943,191),
+        pts(1141,191, 1141,226, 1029,226, 1029,191),
+        pts(371,379, 161,379, 161,191, 371,191),
+        pts(566,379, 389,379, 389,191, 566,191),
         pts(
-            525,301, 530,300, 531,297, 609,297, 610,304, 613,307, 625,308,
-            625,310, 637,310, 638,313, 648,313, 649,353, 646,357, 535,357,
-            534,352, 532,351, 532,344, 525,343
-        ),
-        pts(
-            1168,279, 1168,345, 1165,346, 1164,359, 978,358, 977,326, 980,324,
-            1014,322, 1082,326, 1084,265, 1118,267, 1119,270, 1134,270,
-            1134,273, 1164,275
-        ),
-        pts(
-            966,274, 965,359, 926,359, 925,353, 908,357, 719,356, 715,281,
-            738,280, 744,273, 784,273, 784,255, 772,254, 772,236, 784,235,
-            785,230, 826,230, 827,235, 890,232, 891,224, 916,224, 917,213,
-            942,214, 943,273
-        ),
-        pts(946,194, 995,194, 996,195, 996,270, 995,271, 946,271, 945,270, 945,195),
-        pts(1100,175, 1270,174, 1273,356, 1183,359, 1182,253, 1106,248),
-        pts(
-            973,171, 1093,172, 1094,245, 1092,248, 1077,252, 1075,257,
-            1063,260, 1064,265, 1076,265, 1077,269, 1076,316, 1006,318,
-            1004,314, 976,317, 975,274, 998,273, 998,193, 973,193
-        ),
-        pts(
-            962,172, 962,192, 961,193, 943,193, 943,206, 942,207, 925,207,
-            921,206, 917,206, 916,205, 916,195, 891,195, 890,194, 890,188,
-            892,187, 892,175, 893,174, 947,174, 947,171, 961,171
-        ),
-        pts(
-            762,180, 778,179, 778,172, 781,169, 877,171, 878,174, 886,175,
-            884,209, 885,209, 886,194, 890,194, 891,197, 914,197, 915,222,
-            884,225, 883,213, 874,215, 873,218, 868,220, 763,218
-        ),
-        pts(531,127, 536,127, 537,124, 652,125, 646,291, 583,290, 583,172, 531,168),
-        pts(
-            208,124, 236,116, 399,123, 399,352, 322,354, 313,343, 310,311,
-            289,314, 282,357, 207,351
-        ),
-        pts(
-            465,101, 468,174, 468,328, 472,340, 460,355, 421,353, 418,351,
-            418,336, 414,335, 414,107, 422,106, 423,103
-        ),
-        pts(514,69, 515,68, 596,68, 597,69, 597,106, 590,107, 589,110, 515,110, 514,109)
+            945,253, 947,258, 953,260, 958,256, 959,244, 1011,244, 1011,271, 779,271,
+            779,244, 945,244
+        )
     )
 
-    /**
-     * Builds one Path: the outer boundary + every hole subpath, using
-     * EVEN_ODD fill so the holes render as gaps in the filled tan shape.
-     */
     fun buildPath(): Path {
         val path = Path()
         path.fillType = Path.FillType.EVEN_ODD
-
         addSubPath(path, OUTLINE)
         for (hole in HOLES) {
             addSubPath(path, hole)
@@ -105,14 +83,10 @@ object Pathway {
         path.close()
     }
 
-    /**
-     * Draws the pathway as a solid FILLED shape (not a stroked line),
-     * which is what makes it look like a paved walkway rather than a
-     * series of pointed line segments. Call this BEFORE drawing your
-     * buildings so the walkway sits underneath them.
-     */
-    fun draw(canvas: Canvas, paint: Paint = defaultFillPaint()) {
-        canvas.drawPath(buildPath(), paint)
+    fun draw(canvas: Canvas, paint: Paint = defaultFillPaint(), borderPaint: Paint = defaultBorderPaint()) {
+        val path = buildPath()
+        canvas.drawPath(path, paint)
+        canvas.drawPath(path, borderPaint)
     }
 
     private fun defaultFillPaint(): Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -120,6 +94,16 @@ object Pathway {
         style = Paint.Style.FILL
         strokeJoin = Paint.Join.ROUND
         strokeCap = Paint.Cap.ROUND
+        pathEffect = CornerPathEffect(CORNER_RADIUS)
+    }
+
+    private fun defaultBorderPaint(): Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = BORDER_COLOR
+        style = Paint.Style.STROKE
+        strokeWidth = 2f
+        strokeJoin = Paint.Join.ROUND
+        strokeCap = Paint.Cap.ROUND
+        pathEffect = CornerPathEffect(CORNER_RADIUS)
     }
 }
 

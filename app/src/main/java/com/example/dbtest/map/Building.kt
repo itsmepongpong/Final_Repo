@@ -39,7 +39,12 @@ data class Building(
     // Set false for non-room spaces like storage/utility nooks that are drawn
     // for visual completeness but shouldn't be selectable (e.g. the two
     // "X" storage rooms flanking the Training Center's middle block).
-    val clickable: Boolean = true
+    val clickable: Boolean = true,
+    // Whether this building/room can be reserved. Defaults to false - most
+    // buildings are just tappable for info (name shown in the slider panel,
+    // no Reserve button). Only BSIT (IT), BSE, and BSHM (HM) department
+    // rooms are reservable, per request.
+    val reservable: Boolean = false
 )
 
 
@@ -105,7 +110,7 @@ object CampusBuildings {
         // hand-drawn plan there's a room below it, next to Room 6, that was
         // missing. See building_4i/4j below for that room.
         Building("building_4e", "Training Center - Storage 2", pts(760,112, 729,113, 728,70, 758,68), fillColor = UNCOLORED_BROWN, clickable = false),
-        Building("building_4f", "Training Center - BSE", pts(661,114, 659,72, 728,70, 729,112), fillColor = BSE_BLUE),
+        Building("building_4f", "Training Center - BSE", pts(661,114, 659,72, 728,70, 729,112), fillColor = BSE_BLUE, reservable = true),
         Building("building_4g", "Training Center - Room 5", pts(662,146, 661,114, 695,113, 696,144), fillColor = UNCOLORED_BROWN),
         Building("building_4h", "Training Center - Room 6", pts(696,144, 695,113, 729,112, 730,143), fillColor = UNCOLORED_BROWN),
         // New room next to Room 6, directly below the (now-shortened) Storage 2
@@ -130,7 +135,7 @@ object CampusBuildings {
         Building("building_17", "Canteen 4", pts(898,274, 873,274, 873,255, 898,255), fillColor = CANTEEN_GREEN),
         // New building the same size Building 17 used to be (45 x 60),
         // centered between Building 17's old center and the Hostel's center.
-        Building("building_27", "HM Building", pts(975,313, 930,313, 930,253, 975,253), fillColor = HM_ORANGE),
+        Building("building_27", "HM Building", pts(975,313, 930,313, 930,253, 975,253), fillColor = HM_ORANGE, reservable = true),
         Building("building_20", "School Van Parking Area", pts(750,356, 713,356, 713,325, 750,325), fillColor = PARKING_AREA_COLOR),
         Building("building_21", "Canteen 1", pts(814,330, 778,330, 778,283, 814,283), fillColor = CANTEEN_GREEN),
         Building("building_22", "Hostel", pts(1002,335, 999,271, 1037,270, 1040,334), fillColor = LANDMARK_RED, floor = 2),
@@ -152,12 +157,12 @@ object CampusBuildings {
     // -----------------------------------------------------------------
     val IT_BUILDINGS: List<Building> = listOf(
         // IT Building 1 (Building 12 side)
-        Building("building_12a", "IT 1B Room", pts(427,218, 427,181, 473,181, 474,218), fillColor = IT_GRAY),
+        Building("building_12a", "IT 1B Room", pts(427,218, 427,181, 473,181, 474,218), fillColor = IT_GRAY, reservable = true),
 
         // IT Building 1 (Building 13 side) - all on the 2nd floor
-        Building("building_13a", "IT 1A Room", pts(538,198, 615,198, 615,229, 538,229), fillColor = IT_GRAY, floor = 2),
-        Building("building_13b", "Computer Lab/IT4", pts(587,229, 615,229, 615,280, 587,280), fillColor = IT_GRAY, floor = 2),
-        Building("building_13c", "Internet Room/IT3", pts(587,280, 615,280, 615,330, 587,330), fillColor = IT_GRAY, floor = 2),
+        Building("building_13a", "IT 1A Room", pts(538,198, 615,198, 615,229, 538,229), fillColor = IT_GRAY, floor = 2, reservable = true),
+        Building("building_13b", "Computer Lab/IT4", pts(587,229, 615,229, 615,280, 587,280), fillColor = IT_GRAY, floor = 2, reservable = true),
+        Building("building_13c", "Internet Room/IT3", pts(587,280, 615,280, 615,330, 587,330), fillColor = IT_GRAY, floor = 2, reservable = true),
 
         // Ground-floor duplicates of the three 2nd-floor IT rooms above, same
         // shapes/labels, just renamed ids so floor 1 also shows them (see the
@@ -165,13 +170,13 @@ object CampusBuildings {
         // but those two halves are now HM rooms - see building_13a_gf1/gf2 in
         // HM_BUILDINGS below. Keeping them here too would double-draw them
         // (gray under orange), which is what caused the off-shade orange.
-        Building("building_13b_gf", "Computer Lab/IT4", pts(587,229, 615,229, 615,280, 587,280), fillColor = IT_GRAY),
-        Building("building_13c_gf", "Internet Room/IT3", pts(587,280, 615,280, 615,330, 587,330), fillColor = IT_GRAY),
+        Building("building_13b_gf", "Computer Lab/IT4", pts(587,229, 615,229, 615,280, 587,280), fillColor = IT_GRAY, reservable = true),
+        Building("building_13c_gf", "Internet Room/IT3", pts(587,280, 615,280, 615,330, 587,330), fillColor = IT_GRAY, reservable = true),
 
         // IT Building 2 (Building 19)
-        Building("building_19a", "IT 2B Room", pts(533,373, 533,340, 570,338, 570,373), fillColor = IT_GRAY),
-        Building("building_19b", "IT 2A Room", pts(570,372, 570,338, 610,338, 610,372), fillColor = IT_GRAY),
-        Building("building_19c", "IT Faculty", pts(611,372, 611,347, 637,349, 639,371), fillColor = IT_GRAY),
+        Building("building_19a", "IT 2B Room", pts(533,373, 533,340, 570,338, 570,373), fillColor = IT_GRAY, reservable = true),
+        Building("building_19b", "IT 2A Room", pts(570,372, 570,338, 610,338, 610,372), fillColor = IT_GRAY, reservable = true),
+        Building("building_19c", "IT Faculty", pts(611,372, 611,347, 637,349, 639,371), fillColor = IT_GRAY, reservable = true),
     )
 
     // -----------------------------------------------------------------
@@ -182,26 +187,26 @@ object CampusBuildings {
         // Bottom edge pulled up from y195 -> y180 (15 shorter) to open a
         // pathway between this room and building_13a/13a_gf1/13a_gf2 below
         // it, which start at y198 - was nearly touching before.
-        Building("building_7", "HM Room 1", pts(590,180, 524,180, 524,150, 590,150), fillColor = HM_ORANGE),
-        Building("building_12b", "HM Room 2", pts(427,255, 427,218, 474,218, 474,255), fillColor = HM_ORANGE),
-        Building("building_12c", "HM Room 3", pts(427,293, 427,255, 474,255, 475,293), fillColor = HM_ORANGE),
-        Building("building_12d", "HM Room 4", pts(427,330, 427,293, 475,293, 475,330), fillColor = HM_ORANGE),
+        Building("building_7", "HM Room 1", pts(590,180, 524,180, 524,150, 590,150), fillColor = HM_ORANGE, reservable = true),
+        Building("building_12b", "HM Room 2", pts(427,255, 427,218, 474,218, 474,255), fillColor = HM_ORANGE, reservable = true),
+        Building("building_12c", "HM Room 3", pts(427,293, 427,255, 474,255, 475,293), fillColor = HM_ORANGE, reservable = true),
+        Building("building_12d", "HM Room 4", pts(427,330, 427,293, 475,293, 475,330), fillColor = HM_ORANGE, reservable = true),
         // showOnOtherFloor = false: floor 2 has this footprint as one merged
         // room (building_13a, IT 1A Room), not two - ghosting these split
         // halves onto floor 2 was drawing a stray dividing line/color blend
         // across that merged room.
-        Building("building_13a_gf1", "HM Room 5", pts(538,198, 577,198, 577,229, 538,229), fillColor = HM_ORANGE, showOnOtherFloor = false),
-        Building("building_13a_gf2", "HM Room 6", pts(577,198, 615,198, 615,229, 577,229), fillColor = HM_ORANGE, showOnOtherFloor = false),
-        Building("building_12e", "Faculty", pts(427,368, 427,330, 475,330, 476,368), fillColor = HM_ORANGE),
+        Building("building_13a_gf1", "HM Room 5", pts(538,198, 577,198, 577,229, 538,229), fillColor = HM_ORANGE, showOnOtherFloor = false, reservable = true),
+        Building("building_13a_gf2", "HM Room 6", pts(577,198, 615,198, 615,229, 577,229), fillColor = HM_ORANGE, showOnOtherFloor = false, reservable = true),
+        Building("building_12e", "Faculty", pts(427,368, 427,330, 475,330, 476,368), fillColor = HM_ORANGE, reservable = true),
 
         // Ground-floor duplicates of South Building - same shapes/labels,
         // just renamed ids, so floor 1 shows these too (same treatment as the
         // Hostel/IT duplicates above; South is no longer excluded).
         Building("building_24a_gf", "South - CR 1", pts(333,476, 308,476, 308,416, 333,416), fillColor = LANDMARK_RED),
-        Building("building_24b_gf", "South - Room 1", pts(389,476, 333,476, 333,416, 389,416), fillColor = HM_ORANGE),
-        Building("building_24c_gf", "South - Room 2", pts(445,476, 389,476, 389,416, 445,416), fillColor = HM_ORANGE),
-        Building("building_24d_gf", "South - Room 3", pts(502,476, 445,476, 445,416, 502,416), fillColor = HM_ORANGE),
-        Building("building_24e_gf", "South - Room 4", pts(558,476, 502,476, 502,416, 558,416), fillColor = HM_ORANGE),
+        Building("building_24b_gf", "South - Room 1", pts(389,476, 333,476, 333,416, 389,416), fillColor = HM_ORANGE, reservable = true),
+        Building("building_24c_gf", "South - Room 2", pts(445,476, 389,476, 389,416, 445,416), fillColor = HM_ORANGE, reservable = true),
+        Building("building_24d_gf", "South - Room 3", pts(502,476, 445,476, 445,416, 502,416), fillColor = HM_ORANGE, reservable = true),
+        Building("building_24e_gf", "South - Room 4", pts(558,476, 502,476, 502,416, 558,416), fillColor = HM_ORANGE, reservable = true),
         Building("building_24f_gf", "South - CR 2", pts(583,476, 558,476, 558,416, 583,416), fillColor = LANDMARK_RED),
     )
 
@@ -235,8 +240,8 @@ object CampusBuildings {
     // at the top. Building 18's rooms 5/6 moved here from TM_BUILDINGS.
     // -----------------------------------------------------------------
     val BSE_BUILDINGS: List<Building> = listOf(
-        Building("building_18b", "BSE - Room 5", pts(163,334, 163,294, 207,294, 208,334), fillColor = BSE_BLUE),
-        Building("building_18c", "BSE - Room 6", pts(164,373, 163,334, 208,334, 209,373), fillColor = BSE_BLUE),
+        Building("building_18b", "BSE - Room 5", pts(163,334, 163,294, 207,294, 208,334), fillColor = BSE_BLUE, reservable = true),
+        Building("building_18c", "BSE - Room 6", pts(164,373, 163,334, 208,334, 209,373), fillColor = BSE_BLUE, reservable = true),
     )
 
     val ALL: List<Building> = OTHER_BUILDINGS + IT_BUILDINGS + HM_BUILDINGS + TM_BUILDINGS + BSE_BUILDINGS

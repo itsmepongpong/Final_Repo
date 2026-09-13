@@ -109,14 +109,20 @@ class CampusMapActivity : AppCompatActivity() {
             zoomToBuilding(building.id)
 
             // Use the real, up-to-date "in use right now" status instead of a hardcoded false.
-            slider.open(building.label, isReserved = reservedBuildings.contains(building.label))
+            // Only BSIT/BSE/BSHM rooms (Building.reservable) get a Reserve button - every
+            // other building's panel is info-only (just the name).
+            slider.open(
+                building.label,
+                isReserved = reservedBuildings.contains(building.label),
+                reservable = building.reservable
+            )
         }
 
         // Handle the slider's reserve button click to open ReservationActivity.
         // Always allowed - even a building in use right now can be booked for a different time.
         slider.onReserveClick = {
             val building = currentBuilding
-            if (building != null) {
+            if (building != null && building.reservable) {
                 val intent = Intent(this, ReservationActivity::class.java)
                 intent.putExtra("BUILDING_NAME", building.label)
                 reservationLauncher.launch(intent)
