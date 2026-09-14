@@ -8,6 +8,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.compose.ui.platform.ComposeView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.dbtest.R;
@@ -26,6 +27,9 @@ public final class CampusMapBinding implements ViewBinding {
   public final TextView buildingName;
 
   @NonNull
+  public final ComposeView compassOverlay;
+
+  @NonNull
   public final FloatingActionButton floatingActionButton;
 
   @NonNull
@@ -38,10 +42,12 @@ public final class CampusMapBinding implements ViewBinding {
   public final SliderBinding sliderRoot;
 
   private CampusMapBinding(@NonNull FrameLayout rootView, @NonNull TextView buildingName,
-      @NonNull FloatingActionButton floatingActionButton, @NonNull MaterialButton floorToggleButton,
-      @NonNull SiteMapView siteMapView, @NonNull SliderBinding sliderRoot) {
+      @NonNull ComposeView compassOverlay, @NonNull FloatingActionButton floatingActionButton,
+      @NonNull MaterialButton floorToggleButton, @NonNull SiteMapView siteMapView,
+      @NonNull SliderBinding sliderRoot) {
     this.rootView = rootView;
     this.buildingName = buildingName;
+    this.compassOverlay = compassOverlay;
     this.floatingActionButton = floatingActionButton;
     this.floorToggleButton = floorToggleButton;
     this.siteMapView = siteMapView;
@@ -81,6 +87,12 @@ public final class CampusMapBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.compassOverlay;
+      ComposeView compassOverlay = ViewBindings.findChildViewById(rootView, id);
+      if (compassOverlay == null) {
+        break missingId;
+      }
+
       id = R.id.floatingActionButton;
       FloatingActionButton floatingActionButton = ViewBindings.findChildViewById(rootView, id);
       if (floatingActionButton == null) {
@@ -106,8 +118,8 @@ public final class CampusMapBinding implements ViewBinding {
       }
       SliderBinding binding_sliderRoot = SliderBinding.bind(sliderRoot);
 
-      return new CampusMapBinding((FrameLayout) rootView, buildingName, floatingActionButton,
-          floorToggleButton, siteMapView, binding_sliderRoot);
+      return new CampusMapBinding((FrameLayout) rootView, buildingName, compassOverlay,
+          floatingActionButton, floorToggleButton, siteMapView, binding_sliderRoot);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

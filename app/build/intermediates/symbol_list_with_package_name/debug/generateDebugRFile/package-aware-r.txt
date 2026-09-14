@@ -9,6 +9,7 @@ color white
 drawable building
 drawable ic_add
 drawable ic_close
+drawable ic_compass
 drawable ic_launcher_background
 drawable ic_launcher_foreground
 drawable menu_button
@@ -40,6 +41,7 @@ id btn_submit_reservation
 id buildingName
 id buildingPanel
 id cb_terms
+id compassOverlay
 id et_date
 id et_edit_password
 id et_edit_username
@@ -96,9 +98,9 @@ layout slider
 mipmap ic_launcher
 mipmap ic_launcher_round
 navigation my_nav
+string CampuSpot
 string add
 string add_item
-string app_name
 string firebase_database_url
 string full_name
 string gcm_defaultSenderId

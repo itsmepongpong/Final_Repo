@@ -7,6 +7,13 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.lifecycleScope
 import com.example.dbtest.data.ReservationRepository
 import com.example.dbtest.map.Building
@@ -105,6 +112,21 @@ class CampusMapActivity : AppCompatActivity() {
 
         findViewById<FloatingActionButton>(R.id.floatingActionButton).setOnClickListener {
             startActivity(Intent(this, Settings::class.java))
+        }
+
+        // Non-interactive live compass, permanently visible in the corner of the map.
+        // Its needle tracks the map's own on-screen rotation (from the two-finger
+        // rotate gesture on siteMapView), so it stays in sync as the map is twisted.
+        findViewById<ComposeView>(R.id.compassOverlay).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                var mapRotation by remember { mutableFloatStateOf(0f) }
+                DisposableEffect(Unit) {
+                    siteMapView.onMapRotationChanged = { degrees -> mapRotation = degrees }
+                    onDispose { siteMapView.onMapRotationChanged = null }
+                }
+                CompassOverlay(mapRotationDegrees = mapRotation)
+            }
         }
     }
 

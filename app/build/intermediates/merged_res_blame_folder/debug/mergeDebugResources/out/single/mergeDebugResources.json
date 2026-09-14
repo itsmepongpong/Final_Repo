@@ -8,6 +8,10 @@
         "source": "com.example.dbtest.app-main-69:/layout/item_user.xml"
     },
     {
+        "merged": "com.example.dbtest.app-debug-67:/drawable_ic_launcher_foreground.png.flat",
+        "source": "com.example.dbtest.app-main-69:/drawable/ic_launcher_foreground.png"
+    },
+    {
         "merged": "com.example.dbtest.app-debug-67:/xml_data_extraction_rules.xml.flat",
         "source": "com.example.dbtest.app-main-69:/xml/data_extraction_rules.xml"
     },
@@ -18,6 +22,10 @@
     {
         "merged": "com.example.dbtest.app-debug-67:/mipmap-mdpi_ic_launcher_round.webp.flat",
         "source": "com.example.dbtest.app-main-69:/mipmap-mdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.example.dbtest.app-debug-67:/drawable_ic_compass.xml.flat",
+        "source": "com.example.dbtest.app-main-69:/drawable/ic_compass.xml"
     },
     {
         "merged": "com.example.dbtest.app-debug-67:/mipmap-xxhdpi_ic_launcher.webp.flat",
@@ -106,10 +114,6 @@
     {
         "merged": "com.example.dbtest.app-debug-67:/drawable_settings_logo.xml.flat",
         "source": "com.example.dbtest.app-main-69:/drawable/settings_logo.xml"
-    },
-    {
-        "merged": "com.example.dbtest.app-debug-67:/drawable_ic_launcher_foreground.xml.flat",
-        "source": "com.example.dbtest.app-main-69:/drawable/ic_launcher_foreground.xml"
     },
     {
         "merged": "com.example.dbtest.app-debug-67:/drawable_menu_button.xml.flat",

@@ -93,6 +93,13 @@ class SiteMapView @JvmOverloads constructor(
 
     var rotateEnabled = true
 
+    // Fired with the map's cumulative rotation (0-360°) any time the two-finger
+    // rotate gesture spins it, so other UI (e.g. the compass overlay) can track
+    // the map's current on-screen orientation.
+    var onMapRotationChanged: ((Float) -> Unit)? = null
+
+    private var currentMapRotationDegrees = 0f
+
 
     private var defaultFillColor = Color.argb(90, 187, 134, 252) // subtle purple_200 tint, matches app theme
 
@@ -219,6 +226,14 @@ class SiteMapView @JvmOverloads constructor(
             mapMatrix.set(baseMatrix)
         }
         updateInverse()
+
+        // Claim the whole view (including its left/right edges) as a system-gesture
+        // exclusion zone. Without this, panning the map near the screen edges gets
+        // grabbed by Android's edge-swipe "back" gesture instead of the map, which
+        // backgrounds/closes the app on every edge swipe.
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q && w > 0 && h > 0) {
+            systemGestureExclusionRects = listOf(Rect(0, 0, w, h))
+        }
     }
 
     private fun updateInverse() {
@@ -346,6 +361,39 @@ class SiteMapView @JvmOverloads constructor(
         return hypot(values[Matrix.MSCALE_X].toDouble(), values[Matrix.MSKEW_Y].toDouble()).toFloat()
     }
 
+    // Minimum amount of the map (in px) that must stay on screen at all times.
+    // Prevents a fast/hard swipe from translating the whole map off-screen in a
+    // single large ACTION_MOVE jump (which made the view appear to "go invisible").
+    private val minVisiblePan = 80f
+    private val reusablePanTestMatrix = Matrix()
+    private val reusablePanRect = RectF()
+
+    private fun clampPan(dx: Float, dy: Float): PointF {
+        reusablePanTestMatrix.set(mapMatrix)
+        reusablePanTestMatrix.postTranslate(dx, dy)
+
+        reusablePanRect.set(0f, 0f, designWidth, designHeight)
+        reusablePanTestMatrix.mapRect(reusablePanRect)
+
+        var clampedDx = dx
+        var clampedDy = dy
+
+        if (reusablePanRect.right < minVisiblePan) {
+            clampedDx += (minVisiblePan - reusablePanRect.right)
+        }
+        if (reusablePanRect.left > width - minVisiblePan) {
+            clampedDx -= (reusablePanRect.left - (width - minVisiblePan))
+        }
+        if (reusablePanRect.bottom < minVisiblePan) {
+            clampedDy += (minVisiblePan - reusablePanRect.bottom)
+        }
+        if (reusablePanRect.top > height - minVisiblePan) {
+            clampedDy -= (reusablePanRect.top - (height - minVisiblePan))
+        }
+
+        return PointF(clampedDx, clampedDy)
+    }
+
 
     private var lastTouchX = 0f
     private var lastTouchY = 0f
@@ -394,6 +442,7 @@ class SiteMapView @JvmOverloads constructor(
                 lastTouchX = event.x
                 lastTouchY = event.y
                 isDragging = false
+                parent?.requestDisallowInterceptTouchEvent(true)
                 return true
             }
 
@@ -426,6 +475,8 @@ class SiteMapView @JvmOverloads constructor(
                     val pivotY = (event.getY(i1) + event.getY(i2)) / 2f
                     mapMatrix.postRotate(delta, pivotX, pivotY)
                     previousAngle = newAngle
+                    currentMapRotationDegrees = (currentMapRotationDegrees + delta + 360f) % 360f
+                    onMapRotationChanged?.invoke(currentMapRotationDegrees)
                     updateInverse()
                     invalidate()
                 } else if (panEnabled && event.pointerCount == 1) {
@@ -440,7 +491,8 @@ class SiteMapView @JvmOverloads constructor(
                         }
                     }
                     if (isDragging) {
-                        mapMatrix.postTranslate(dx, dy)
+                        val clamped = clampPan(dx, dy)
+                        mapMatrix.postTranslate(clamped.x, clamped.y)
                         updateInverse()
                         invalidate()
                     }

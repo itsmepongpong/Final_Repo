@@ -7,9 +7,9 @@
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
     <color name="white">#FFFFFFFF</color>
+    <string name="CampuSpot">dbtest</string>
     <string name="add">Add</string>
     <string name="add_item">Add item</string>
-    <string name="app_name">dbtest</string>
     <string name="firebase_database_url" translatable="false">https://dbtest-81342768-default-rtdb.firebaseio.com</string>
     <string name="full_name">Full Name</string>
     <string name="gcm_defaultSenderId" translatable="false">423416152775</string>

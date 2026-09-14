@@ -8,6 +8,7 @@ int color white 0x0
 int drawable building 0x0
 int drawable ic_add 0x0
 int drawable ic_close 0x0
+int drawable ic_compass 0x0
 int drawable ic_launcher_background 0x0
 int drawable ic_launcher_foreground 0x0
 int drawable menu_button 0x0
@@ -39,6 +40,7 @@ int id btn_submit_reservation 0x0
 int id buildingName 0x0
 int id buildingPanel 0x0
 int id cb_terms 0x0
+int id compassOverlay 0x0
 int id et_date 0x0
 int id et_edit_password 0x0
 int id et_edit_username 0x0
@@ -95,9 +97,9 @@ int layout slider 0x0
 int mipmap ic_launcher 0x0
 int mipmap ic_launcher_round 0x0
 int navigation my_nav 0x0
+int string CampuSpot 0x0
 int string add 0x0
 int string add_item 0x0
-int string app_name 0x0
 int string firebase_database_url 0x0
 int string full_name 0x0
 int string gcm_defaultSenderId 0x0
